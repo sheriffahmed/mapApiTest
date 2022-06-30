@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-// React from 'react';
 import MapView from "react-native-maps";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View, Dimensions, Button } from "react-native";
@@ -18,13 +17,9 @@ export default function App() {
     longitudeDelta: 63.28125603497028,
   });
 
-  // "latitude": 33.64545041829775,
-  // "latitudeDelta": 82.20946758925375,
-  // "longitude": -96.10110953450203,
-  // "longitudeDelta": 63.28125603497028,
-
   const getLocationPermission = async () => {
     await Location.requestForegroundPermissionsAsync();
+    await Location.useForegroundPermissions()
     let result = await Location.getForegroundPermissionsAsync();
     setAppLocation(result);
     return result;
@@ -33,17 +28,14 @@ export default function App() {
   const getCurrLoc = async () => {
     const location = await Location.getCurrentPositionAsync();
     setCurrLoc(location.coords);
-
-    // console.log(`line 31: `,currLoc)
     setRegion((prev) => {
       return {
         ...prev,
         latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
+        longitudeDelta: 0.01,
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
       };
-
     });
     await Location.useForegroundPermissions();
     mapRef.current.animateToRegion(
@@ -54,30 +46,20 @@ export default function App() {
       },
       3 * 1000
     );
-    console.log(region);
     return {
       latitudeDelta: 0.01,
       longitudeDelta: 0.01,
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
     }
-    //  location;
-  };
-
-  const goToTokyo = () => {
-    //Animate the user to new region. Complete this animation in 3 seconds
-    mapRef.current.animateToRegion(tokyoRegion, 3 * 1000);
   };
 
   const handleRegionChange = (r) =>{
     setRegion(r);
-    console.log('current regoin: ',r)
   }
 
   useEffect(() => {
     getLocationPermission();
-    // if (appLocation === undefined) {
-    // }
     getCurrLoc();
     return () => {
       //cleanup
@@ -93,18 +75,9 @@ export default function App() {
       <MapView
         ref={mapRef}
         style={styles.map}
-        // initialRegion={{
-        //   latitude: 37.78825,
-        //   longitude: -122.4324,
-        //   latitudeDelta: 0.0922,
-        //   longitudeDelta: 0.0421,
-        // }}
-        // initialRegion={region}
         region={region}
         onRegionChangeComplete={(region) => handleRegionChange(region)}
-        // onRegionChangeComplete={(region) => setRegion(region)}
       />
-
       <Button
         onPress={() => mapRef.current.animateToRegion(getCurrLoc(), 3 * 1000)}
         title="Current Location"
