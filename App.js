@@ -8,7 +8,12 @@ export default function App() {
   const [status, requestPermission] = Location.useForegroundPermissions();
   const askPermission = Location.requestForegroundPermissionsAsync();
   const [appLocation, setAppLocation] = useState(undefined);
-  const [currLoc, setCurrLoc] = useState({});
+  const [currLoc, setCurrLoc] = useState({
+    coords: {
+      latitude: 33.64545041829775,
+      longitude: -96.10110953450203,
+    }
+  });
   const mapRef = useRef(null);
   const [region, setRegion] = useState({
     latitude: 33.64545041829775,
@@ -16,15 +21,7 @@ export default function App() {
     latitudeDelta: 82.20946758925375,
     longitudeDelta: 63.28125603497028,
   });
-
-  const getLocationPermission = async () => {
-    await Location.requestForegroundPermissionsAsync();
-    await Location.useForegroundPermissions()
-    let result = await Location.getForegroundPermissionsAsync();
-    setAppLocation(result);
-    return result;
-  };
-
+const [locationResult, setLocationResult] = useState(null)
   const getCurrLoc = async () => {
     const location = await Location.getCurrentPositionAsync();
     setCurrLoc(location.coords);
@@ -57,6 +54,21 @@ export default function App() {
   const handleRegionChange = (r) =>{
     setRegion(r);
   }
+
+  const getLocationPermission = async () => {
+    await Location.requestForegroundPermissionsAsync();
+    console.log('line 22: ',await Location.requestForegroundPermissionsAsync());
+     Location.useForegroundPermissions()
+.then(()=> mapRef.current.animateToRegion(getCurrLoc(), 3 * 1000))
+    console.log('line 24: ',await Location.useForegroundPermissions())
+    let result = await Location.getForegroundPermissionsAsync();
+    setAppLocation(result);
+
+    mapRef.current.animateToRegion(getCurrLoc(), 3 * 1000)
+    getCurrLoc();
+
+    return result;
+  };
 
   useEffect(() => {
     getLocationPermission();
